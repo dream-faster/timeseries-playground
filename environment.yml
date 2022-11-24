@@ -1,0 +1,38 @@
+name: enoki
+channels:
+  - pyg
+  - conda-forge
+dependencies:
+  - python=3.9
+  - numba=0.53.1
+  - statsmodels==0.12.1
+  - scikit-learn
+  - fastparquet
+  - seaborn
+  - black
+  - ipython
+  - ipykernel
+  - scipy
+  - tqdm
+  - numpy
+  - pandas
+  - matplotlib
+  - quantstats
+  - pytest
+  - pandas-ta
+  - pandas-datareader
+  - ca-certificates
+  - certifi
+  - openssl
+  - alpha_vantage
+  - pytrends
+  - nasdaq-data-link
+  - missingno
+  - tsfresh
+  - pytrends
+  - sktime
+  - pip
+  - pip:
+    - fracdiff
+    - prophet
+prefix: /opt/homebrew/Caskroom/mambaforge/base/envs/enoki
