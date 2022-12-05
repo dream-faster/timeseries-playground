@@ -70,7 +70,7 @@ def plot_acf_pacf(
     plot_pacf: bool = False,
 ) -> go.Figure:
     corr_array = (
-        pacf(ds.dropna(), alpha=alpha) if plot_pacf else acf(ds.dropna(), alpha=0.05)
+        pacf(ds.dropna(), alpha=alpha) if plot_pacf else acf(ds.dropna(), alpha=alpha)
     )
     lower_y = corr_array[1][:, 0] - corr_array[0]
     upper_y = corr_array[1][:, 1] - corr_array[0]
