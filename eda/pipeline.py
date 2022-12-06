@@ -76,34 +76,34 @@ def eda_pipeline(
             [0, 1, 2],
         ),
     )
-    # if plot:
-    #     report.add(
-    #         [
-    #             InteractiveFigure(
-    #                 id="acf",
-    #                 get_figure=plotly_interactive(
-    #                     plot_acf_pacf,
-    #                     df[target_col],
-    #                     alpha=alpha,
-    #                 ),
-    #             ),
-    #             InteractiveFigure(
-    #                 id="pacf",
-    #                 get_figure=plotly_interactive(
-    #                     plot_acf_pacf, df[target_col], alpha=alpha, plot_pacf=True
-    #                 ),
-    #                 inputs=[("alpha", "value")],
-    #             ),
-    #             InteractiveFigure(
-    #                 id="best_model_prediction",
-    #                 get_figure=plotly_interactive(
-    #                     plot_predict,
-    #                     df[target_col],
-    #                     model_res=fitted_arimas[0],
-    #                 ),
-    #             ),
-    #         ]
-    #     )
+    if plot:
+        report.add(
+            [
+                InteractiveFigure(
+                    id="acf",
+                    get_figure=plotly_interactive(
+                        plot_acf_pacf,
+                        df[target_col],
+                        alpha=alpha,
+                    ),
+                ),
+                InteractiveFigure(
+                    id="pacf",
+                    get_figure=plotly_interactive(
+                        plot_acf_pacf, df[target_col], alpha=alpha, plot_pacf=True
+                    ),
+                    inputs=[("alpha", "value")],
+                ),
+                InteractiveFigure(
+                    id="best_model_prediction",
+                    get_figure=plotly_interactive(
+                        plot_predict,
+                        df[target_col],
+                        model_res=fitted_arimas[0],
+                    ),
+                ),
+            ]
+        )
 
     report.generate_launch()
 

@@ -1,65 +1,70 @@
-from eda.utils import generating_arima_synthetic_data
-from eda.modeling import fit_arima_model
-from models.statsforecast_wrapper import UnivariateStatsForecastModel
-from statsforecast.models import AutoARIMA
-from train import walk_forward_train_predict
+from typing import Tuple, Union, Optional, Any
+from dataclasses import dataclass
 import pandas as pd
+import numpy as np
 
-from typing import Tuple
 from statsmodels.tsa.stattools import acf, pacf, q_stat
+
 from models.base import Model
-
-from models.naive_models import NaiveForecasterWrapper, NaiveForecasterConfig
-
-
-# def generate_artificial_dataset_prediction(nsample:int=1000, prediction_len:int = 100)->Tuple[pd.DataFrame,pd.Series, pd.Series]:
-#     target_col= "example"
-#     df = generating_arima_synthetic_data(target_col=target_col, nsample=nsample).to_frame()
-
-#     model_res = fit_arima_model(df[target_col])
-#     insample_prediction = model_res.predict(start=0, end=len(df))
-#     outsample_prediction = model_res.predict(start=len(df)+1, end=len(df)+prediction_len)
-
-#     return df, insample_prediction, outsample_prediction
+from eda.utils import generating_arima_synthetic_data
+from models.naive_models import default_naive_model
+from models.arima import default_arima_model
 
 
-def generate_artificial_dataset_prediction(
-    model: Model, nsample: int = 1000, prediction_len: int = 100
-) -> Tuple[pd.DataFrame, pd.Series, pd.Series]:
-    target_col = "example"
-    df = generating_arima_synthetic_data(
-        target_col=target_col, nsample=nsample
-    ).to_frame()
+def generate_univariate_predictions(
+    model: Model,
+    df: pd.DataFrame,
+    target_col: str,
+) -> Tuple[Union[pd.Series, np.ndarray], Union[pd.Series, np.ndarray]]:
 
     model.fit(df[[target_col]], df[target_col])
     outsample_prediction = model.predict(df[[target_col]])
     insample_prediction = model.predict_in_sample(df[[target_col]])
 
-    return df, insample_prediction, outsample_prediction
+    return insample_prediction, outsample_prediction
 
 
-def evaluate(features: pd.DataFrame, predictions: pd.Series):
+@dataclass
+class ScoreCard:
+    ljung_box_score: Optional[int] = None
+
+    def update(self, key: str, value: Any):
+        if hasattr(self, key):
+            setattr(self, key, value)
+
+
+def evaluate(
+    features: pd.DataFrame, predictions: Union[np.ndarray, pd.Series]
+) -> ScoreCard:
     alpha = 0.05
     pacf_res = pacf(predictions, alpha=alpha)
     acf_res = acf(predictions, alpha=alpha)
 
-    ljung_box = q_stat(acf_res, len(features))
+    summary = ScoreCard()
+    summary.update("ljung_box", q_stat(acf_res, len(features)))
 
-    print(ljung_box)
+    print(summary)
+
+    return summary
 
 
 def evaluate_both():
-    model = NaiveForecasterWrapper(
-        NaiveForecasterConfig(strategy=NaiveForecasterWrapper.strategy_types.last)
-    )
-    (
-        df,
-        insample_prediction,
-        outsample_prediction,
-    ) = generate_artificial_dataset_prediction(model)
 
-    evaluate(df, insample_prediction)
-    # evaluate(df, outsample_prediction)
+    target_col = "example"
+    df = generating_arima_synthetic_data(
+        target_col=target_col,
+        nsample=1000,
+    ).to_frame()
+
+    # model = default_naive_model
+    model = default_arima_model
+
+    insample_prediction, outsample_prediction = generate_univariate_predictions(
+        model, df, target_col
+    )
+
+    insample_summary = evaluate(df, insample_prediction)
+    outsample_summary = evaluate(df, outsample_prediction)
 
 
 if __name__ == "__main__":

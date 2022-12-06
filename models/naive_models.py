@@ -40,15 +40,24 @@ class NaiveForecasterWrapper(Model):
     ) -> None:
         self.model.fit(X)
 
-    def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
+    def predict_in_sample(
+        self, X: Union[pd.DataFrame, np.ndarray]
+    ) -> Union[np.ndarray, pd.Series]:
         fh = ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=False)
         fh = fh.to_relative(cutoff=len(X))
         return self.model.predict(fh=fh)
 
-    def predict(self, X: np.ndarray) -> np.ndarray:
+    def predict(
+        self, X: Union[pd.DataFrame, np.ndarray]
+    ) -> Union[np.ndarray, pd.Series]:
         fh = (
             self.config.fh
             if self.config.fh is not None
             else ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=True)
         )
         return self.model.predict(fh=fh)
+
+
+default_naive_model = NaiveForecasterWrapper(
+    NaiveForecasterConfig(strategy=NaiveForecasterWrapper.strategy_types.last)
+)

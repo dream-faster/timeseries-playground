@@ -3,6 +3,7 @@ import numpy as np
 from typing import Optional, Tuple, Union
 from dataclasses import dataclass
 from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
+import pandas as pd
 
 
 @dataclass
@@ -27,10 +28,20 @@ class ArimaWrapper(Model):
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         unfitted_model = ARIMA(X, order=self.config.order, trend=self.config.trend)
-        self.model = unfitted_model.fit(y)
+        self.model = unfitted_model.fit()
 
-    def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict_residuals(X) + X
+    def predict_in_sample(
+        self, X: Union[pd.DataFrame, np.ndarray]
+    ) -> Union[np.ndarray, pd.Series]:
+        return self.model.predict(end=len(X) - 1)
 
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict(h=len(X))["mean"]
+    def predict(
+        self, X: Union[pd.DataFrame, np.ndarray]
+    ) -> Union[np.ndarray, pd.Series]:
+        if self.model:
+            return self.model.forecast(len(X))
+        else:
+            raise ValueError("Model has to be fitted first")
+
+
+default_arima_model = ArimaWrapper(ArimaConfig(order=(1, 0, 1)))

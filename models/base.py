@@ -16,9 +16,13 @@ class Model(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+    def predict(
+        self, X: Union[pd.DataFrame, np.ndarray]
+    ) -> Union[np.ndarray, pd.Series]:
         raise NotImplementedError
 
     @abstractmethod
-    def predict_in_sample(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+    def predict_in_sample(
+        self, X: Union[pd.DataFrame, np.ndarray]
+    ) -> Union[np.ndarray, pd.Series]:
         raise NotImplementedError
