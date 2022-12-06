@@ -1,9 +1,11 @@
 from sktime.forecasting.naive import NaiveForecaster
 from .base import Model
 import numpy as np
-from typing import Literal, List, Optional
+from typing import Literal, List, Optional, Union
 from enum import Enum
 from dataclasses import dataclass
+from sktime.forecasting.base import ForecastingHorizon
+import pandas as pd
 
 
 class StrategyTypes(Enum):
@@ -15,27 +17,41 @@ class StrategyTypes(Enum):
 @dataclass
 class NaiveForecasterConfig:
     strategy: StrategyTypes
-    fh: List[int]  # Forecasting Horizon
+    fh: Optional[Union[int, List[int]]] = None  # Forecasting Horizon
     window_length: Optional[int] = None  # The window of the mean if strategy is 'mean'
-    sp: Optional[int] = 1  # Seasonal periodicity
+    sp: int = 1  # Seasonal periodicity
 
 
-class NaiveForecaster(Model):
+class NaiveForecasterWrapper(Model):
 
     name: str = ""
-    forecaster_type: StrategyTypes
+    strategy_types = StrategyTypes
 
-    def __init__(self, strategy: StrategyTypes = StrategyTypes.last) -> None:
-        self.model = NaiveForecaster(strategy=strategy.value)
+    def __init__(self, config: NaiveForecasterConfig) -> None:
+        self.model = NaiveForecaster(
+            strategy=config.strategy.value,
+            sp=config.sp,
+            window_length=config.window_length,
+        )
+        self.config = config
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> None:
-        self.model.fit(y)
+    def fit(
+        self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.Series, np.ndarray]
+    ) -> None:
+        self.model.fit(X)
 
     def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict_residuals(X) + X
+        fh = ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=False)
+        fh = fh.to_relative(cutoff=len(X))
+        return self.model.predict(fh=fh)
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict(h=len(X))["mean"]
+        fh = (
+            self.config.fh
+            if self.config.fh is not None
+            else ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=True)
+        )
+        return self.model.predict(fh=fh)
 
 
 mean = NaiveForecaster
