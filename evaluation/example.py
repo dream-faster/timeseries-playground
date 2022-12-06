@@ -34,11 +34,6 @@ def generate_artificial_dataset_prediction(
     model.fit(df[[target_col]], df[target_col])
     outsample_prediction = model.predict(df[[target_col]])
     insample_prediction = model.predict_in_sample(df[[target_col]])
-    # insample_prediction = pd.Series([])
-
-    # model_res = fit_arima_model(df[target_col])
-    # insample_prediction = model_res.predict(start=0, end=len(df))
-    # outsample_prediction = model_res.predict(start=len(df)+1, end=len(df)+prediction_len)
 
     return df, insample_prediction, outsample_prediction
 

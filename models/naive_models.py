@@ -52,6 +52,3 @@ class NaiveForecasterWrapper(Model):
             else ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=True)
         )
         return self.model.predict(fh=fh)
-
-
-mean = NaiveForecaster

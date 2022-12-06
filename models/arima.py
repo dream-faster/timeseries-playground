@@ -1,37 +1,36 @@
-from sktime.forecasting.naive import NaiveForecaster
 from .base import Model
 import numpy as np
-from typing import Literal, List, Optional
-from enum import Enum
+from typing import Optional, Tuple, Union
 from dataclasses import dataclass
+from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
 
-class StrategyTypes(Enum):
-    mean = 'mean'
-    last = 'last'
-    drift = 'drift'
-    
+
 @dataclass
-class NaiveForecasterConfig:
-    fh: List[int] # Forecasting Horizon
-    window_length: Optional[int] = None # The window of the mean if strategy is 'mean'
-    sp: Optional[int] = 1 # Seasonal periodicity
-    
+class ArimaConfig:
+    """
+    order=(p,d,q).
+        p is the autoregressive order
+        d is the number of times the series has been differenced
+        q is the moving average order
+    """
 
-class Arima(Model):
+    order: Tuple[float, float, float]  # Forecasting Horizon
+    trend: Optional[Union[str, Tuple[float]]] = None
+
+
+class ArimaWrapper(Model):
 
     name: str = ""
-    forecaster_type: StrategyTypes 
-    
-    def __init__(self, strategy: StrategyTypes = StrategyTypes.last) -> None:
-        self.model = NaiveForecaster(strategy=strategy.value)
-        
+
+    def __init__(self, config: ArimaConfig) -> None:
+        self.config = config
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
-        self.model.fit(y)
+        unfitted_model = ARIMA(X, order=self.config.order, trend=self.config.trend)
+        self.model = unfitted_model.fit(y)
 
     def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
         return self.model.predict_residuals(X) + X
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict(h = len(X))['mean']
-
-mean = NaiveForecaster
+        return self.model.predict(h=len(X))["mean"]
