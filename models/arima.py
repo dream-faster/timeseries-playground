@@ -27,7 +27,7 @@ class ArimaWrapper(Model):
     def __init__(self, config: ArimaConfig) -> None:
         self.config = config
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> None:
+    def fit(self, X: X, y: y) -> None:
         unfitted_model = ARIMA(X, order=self.config.order, trend=self.config.trend)
         self.model = unfitted_model.fit()
 
