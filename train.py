@@ -51,7 +51,7 @@ def walk_forward_train_predict(
         # it only supports expanding window now, always start from the first non-zero return (change this to support rolling window)
         train_window_start = X.index[0]
         train_window_end = X.index[index - 1]
-        test_window_end = X.index[index - 1 + retrain_every]
+        test_window_end = X.index[min(len(X) - 1, index - 1 + retrain_every)]
 
         X_train = X[train_window_start:train_window_end].to_numpy()
         y_train = y[train_window_start:train_window_end].to_numpy()
@@ -76,11 +76,9 @@ def walk_forward_train_predict(
 
 if __name__ == "__main__":
     data = get_market_data()
-    X = data["VIX"].shift(1)
-    y = data["VIX"]
+
+    X = data['VIX']
+    y = data['VIX'].shift(-1)
     model = UnivariateStatsForecastModel(model=AutoARIMA())
-    (
-        models_over_time,
-        insample_predictions,
-        outofsample_predictions,
-    ) = walk_forward_train_predict(model, X, y, 200, 100)
+    models_over_time, insample_predictions, outofsample_predictions = walk_forward_train_predict(model, X, y, 1000, 400)
+
