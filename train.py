@@ -1,5 +1,11 @@
 from typing import Union
-from all_types import ModelOverTime, InSamplePredictions, OutOfSamplePredictions, XDataFrame, ySeries
+from all_types import (
+    ModelOverTime,
+    InSamplePredictions,
+    OutSamplePredictions,
+    X,
+    y,
+)
 import pandas as pd
 from models.base import Model
 from tqdm import tqdm
@@ -10,16 +16,15 @@ from models.statsforecast_wrapper import UnivariateStatsForecastModel
 from utils.market_data import get_market_data
 
 
-
 def walk_forward_train_predict(
     model: Model,
-    X: XDataFrame,
-    y: ySeries,
+    X: X,
+    y: y,
     window_size: int,
     retrain_every: int,
     from_index: Optional[pd.Timestamp] = None,
-) -> Union[ModelOverTime, InSamplePredictions, OutOfSamplePredictions]:
-    '''
+) -> Union[ModelOverTime, InSamplePredictions, OutSamplePredictions]:
+    """
     Walk forward train a model on a given dataset.
     :param model: Model to train
     :param X: Features
@@ -28,15 +33,17 @@ def walk_forward_train_predict(
     :param retrain_every: Retrain the model every n steps
     :param from_index: Start training from this index
     :return: Models over time
-    '''
+    """
     models_over_time = pd.Series(index=y.index, dtype="object").rename(model.name)
-    insample_predictions = pd.Series(index=y.index, dtype="object").rename(f"{model.name}_insample_predictions")
-    outofsample_predictions = pd.Series(index=y.index, dtype="object").rename(f"{model.name}_outofsample_predictions")
+    insample_predictions = pd.Series(index=y.index, dtype="object").rename(
+        f"{model.name}_insample_predictions"
+    )
+    outofsample_predictions = pd.Series(index=y.index, dtype="object").rename(
+        f"{model.name}_outofsample_predictions"
+    )
 
     train_from = (
-        window_size + 1
-        if from_index is None
-        else X.index.to_list().index(from_index)
+        window_size + 1 if from_index is None else X.index.to_list().index(from_index)
     )
     train_till = len(y)
 
@@ -56,16 +63,22 @@ def walk_forward_train_predict(
 
         models_over_time[X.index[index]] = current_model
 
-        #this means we always replace the first n values with the predictions
-        insample_predictions[train_window_start:train_window_end] = current_model.predict_in_sample(X_train)
-        outofsample_predictions[train_window_end:test_window_end] = current_model.predict(X_test)
+        # this means we always replace the first n values with the predictions
+        insample_predictions[
+            train_window_start:train_window_end
+        ] = current_model.predict_in_sample(X_train)
+        outofsample_predictions[
+            train_window_end:test_window_end
+        ] = current_model.predict(X_test)
 
     return models_over_time, insample_predictions, outofsample_predictions
 
 
 if __name__ == "__main__":
     data = get_market_data()
+
     X = data['VIX']
     y = data['VIX'].shift(-1)
     model = UnivariateStatsForecastModel(model=AutoARIMA())
     models_over_time, insample_predictions, outofsample_predictions = walk_forward_train_predict(model, X, y, 1000, 400)
+

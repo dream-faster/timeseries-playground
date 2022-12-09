@@ -1,0 +1,58 @@
+from sktime.forecasting.naive import NaiveForecaster
+from .base import Model
+import numpy as np
+from typing import List, Optional, Union
+from enum import Enum
+from dataclasses import dataclass
+from sktime.forecasting.base import ForecastingHorizon
+import pandas as pd
+from all_types import X, y, InSamplePredictions, OutSamplePredictions
+
+
+class StrategyTypes(Enum):
+    mean = "mean"
+    last = "last"
+    drift = "drift"
+
+
+@dataclass
+class NaiveForecasterConfig:
+    strategy: StrategyTypes
+    fh: Optional[Union[int, List[int]]] = None  # Forecasting Horizon
+    window_length: Optional[int] = None  # The window of the mean if strategy is 'mean'
+    sp: int = 1  # Seasonal periodicity
+
+
+class NaiveForecasterWrapper(Model):
+
+    name: str = ""
+    strategy_types = StrategyTypes
+
+    def __init__(self, config: NaiveForecasterConfig) -> None:
+        self.model = NaiveForecaster(
+            strategy=config.strategy.value,
+            sp=config.sp,
+            window_length=config.window_length,
+        )
+        self.config = config
+
+    def fit(self, X: X, y: y) -> None:
+        self.model.fit(X)
+
+    def predict_in_sample(self, X: X) -> InSamplePredictions:
+        fh = ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=False)
+        fh = fh.to_relative(cutoff=len(X))
+        return self.model.predict(fh=fh)
+
+    def predict(self, X: X) -> OutSamplePredictions:
+        fh = (
+            self.config.fh
+            if self.config.fh is not None
+            else ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=True)
+        )
+        return self.model.predict(fh=fh)
+
+
+default_naive_model = NaiveForecasterWrapper(
+    NaiveForecasterConfig(strategy=NaiveForecasterWrapper.strategy_types.last)
+)
