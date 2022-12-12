@@ -1,9 +1,9 @@
 import pandas as pd
-import numpy as np
-from typing import Union
+from typing import List
 
 ModelOverTime = pd.Series
-InSamplePredictions = Union[np.ndarray, pd.Series]
-OutSamplePredictions = Union[np.ndarray, pd.Series]
-y = Union[np.ndarray, pd.Series]
-X = Union[np.ndarray, pd.DataFrame]
+TransformationsOverTime = List[pd.Series]
+InSamplePredictions = pd.Series
+OutSamplePredictions = pd.Series
+y = pd.Series
+X = pd.DataFrame

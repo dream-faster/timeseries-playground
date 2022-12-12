@@ -1,0 +1,46 @@
+import pandas as pd
+from all_types import TransformationsOverTime, X, y
+from tqdm import tqdm
+from transformations.base import Transformation
+from utils.splitters import Split, Splitter
+
+
+def fit_transformations(
+    X: X,
+    y: y,
+    splitter: Splitter,
+    transformations: List[Transformation],
+) -> TransformationsOverTime:
+    transformations_over_time = [
+        pd.Series(index=y.index).rename(t.name) for t in transformations
+    ]
+
+    # easy to parallize this with ray
+    processed_transformations = [
+        __process_transformations_window(X, y, transformations, split)
+        for split in tqdm(splitter)
+    ]
+
+    # aggregate processed transformations
+    for transformation, index in processed_transformations:
+        for transformation_index, transformation in enumerate(transformation):
+            transformations_over_time[transformation_index].iloc[index] = transformation
+
+    return transformations_over_time
+
+
+def __process_transformations_window(
+    X: X,
+    y: y,
+    transformations: list[Transformation],
+    split: Split,
+) -> tuple[int, list[Transformation]]:
+
+    X_train = X[split.train_window_start : split.train_window_end]
+    y_train = y[split.train_window_start : split.train_window_end]
+
+    current_transformations = [t.clone() for t in transformations]
+    for transformation in current_transformations:
+        X_train = transformation.fit_transform(X_train, y_train)
+
+    return split.train_window_start, current_transformations

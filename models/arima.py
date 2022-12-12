@@ -27,14 +27,14 @@ class ArimaWrapper(Model):
     def __init__(self, config: ArimaConfig) -> None:
         self.config = config
 
-    def fit(self, X: X, y: y) -> None:
+    def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         unfitted_model = ARIMA(X, order=self.config.order, trend=self.config.trend)
         self.model = unfitted_model.fit()
 
-    def predict_in_sample(self, X: X) -> InSamplePredictions:
+    def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
         return self.model.predict(end=len(X) - 1)
 
-    def predict(self, X: X) -> OutSamplePredictions:
+    def predict(self, X: np.ndarray) -> np.ndarray:
         if self.model:
             return self.model.forecast(len(X))
         else:
