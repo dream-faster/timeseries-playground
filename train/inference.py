@@ -18,10 +18,10 @@ def walk_forward_inference(
     X: X,
     splitter: Splitter,
 ) -> tuple[InSamplePredictions, OutSamplePredictions]:
-    insample_predictions = pd.Series(index=y.index, dtype="object").rename(
+    insample_predictions = pd.Series(index=X.index, dtype="object").rename(
         f"insample_predictions"
     )
-    outofsample_predictions = pd.Series(index=y.index, dtype="object").rename(
+    outofsample_predictions = pd.Series(index=X.index, dtype="object").rename(
         f"outofsample_predictions"
     )
 
@@ -32,7 +32,7 @@ def walk_forward_inference(
             model_over_time,
             transformations_over_time,
         )
-        for split in tqdm(splitter)
+        for split in tqdm(splitter.splits())
     ]
     for batch in batched_results:
         for index, prediction, probs in batch:

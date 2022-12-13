@@ -3,6 +3,7 @@ from all_types import TransformationsOverTime, X, y
 from tqdm import tqdm
 from transformations.base import Transformation
 from utils.splitters import Split, Splitter
+from typing import List
 
 
 def fit_transformations(
@@ -18,11 +19,11 @@ def fit_transformations(
     # easy to parallize this with ray
     processed_transformations = [
         __process_transformations_window(X, y, transformations, split)
-        for split in tqdm(splitter)
+        for split in tqdm(splitter.splits())
     ]
 
     # aggregate processed transformations
-    for transformation, index in processed_transformations:
+    for index, transformation in processed_transformations:
         for transformation_index, transformation in enumerate(transformation):
             transformations_over_time[transformation_index].iloc[index] = transformation
 

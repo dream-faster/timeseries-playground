@@ -6,6 +6,7 @@ from enum import Enum
 from dataclasses import dataclass
 from sktime.forecasting.base import ForecastingHorizon
 from all_types import OutSamplePredictions
+from utils.np import shift
 
 
 class StrategyTypes(Enum):
@@ -25,7 +26,6 @@ class NaiveForecasterConfig:
 class NaiveForecasterWrapper(Model):
 
     name: str = "NaiveForecaster"
-    strategy_types = StrategyTypes
 
     def __init__(self, config: NaiveForecasterConfig) -> None:
         self.model = NaiveForecaster(
@@ -36,7 +36,7 @@ class NaiveForecasterWrapper(Model):
         self.config = config
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
-        self.model.fit(X)
+        self.model.fit(shift(y, 1))
 
     def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
         fh = ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=False)
@@ -53,5 +53,5 @@ class NaiveForecasterWrapper(Model):
 
 
 default_naive_model = NaiveForecasterWrapper(
-    NaiveForecasterConfig(strategy=NaiveForecasterWrapper.strategy_types.last)
+    NaiveForecasterConfig(strategy=StrategyTypes.last)
 )

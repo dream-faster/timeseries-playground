@@ -17,7 +17,7 @@ def walk_forward_train(
     # easy to parallize this with ray
     models = [
         __train_on_window(split, X, y, model, transformations_over_time)
-        for split in tqdm(splitter)
+        for split in tqdm(splitter.splits())
     ]
 
     models_over_time = pd.Series(index=y.index, dtype="object").rename(model.name)
