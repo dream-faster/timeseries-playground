@@ -4,6 +4,7 @@ from all_types import (
 )
 from statsforecast.models import AutoARIMA
 from models.statsforecast_wrapper import UnivariateStatsForecastModel
+from models.sktime_naive_models import NaiveForecasterConfig, NaiveForecasterWrapper
 from transformations.no import NoTransformation
 from utils.market_data import get_market_data
 from utils.splitters import ExpandingWindowSplitter
@@ -19,6 +20,9 @@ if __name__ == "__main__":
     transformations = [NoTransformation()]
 
     model = UnivariateStatsForecastModel(model=AutoARIMA())
+    model = NaiveForecasterWrapper(
+        NaiveForecasterConfig(strategy=NaiveForecasterWrapper.strategy.last)
+    )
 
     splitter = ExpandingWindowSplitter(start=0, end=len(y), window_size=1000, step=500)
 

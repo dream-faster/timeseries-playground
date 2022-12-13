@@ -25,6 +25,8 @@ class NaiveForecasterConfig:
 
 class NaiveForecasterWrapper(Model):
 
+    strategy = StrategyTypes
+
     name: str = "NaiveForecaster"
 
     def __init__(self, config: NaiveForecasterConfig) -> None:
