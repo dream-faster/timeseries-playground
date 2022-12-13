@@ -19,7 +19,7 @@ class FracdiffTransformation(Transformation):
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         X = pd.DataFrame(self.model.transform(X), index=X.index)
-        X.columns = ["Fracdiff_" + str(i) for i in range(1, len(X.columns) + 1)]
+        X.columns = [f"{column}_fracdiff_{self.window_size}" for column in X.columns]
         return X
 
     def clone(self) -> FracdiffTransformation:

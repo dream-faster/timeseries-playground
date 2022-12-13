@@ -18,9 +18,6 @@ class Splitter:
 
 
 class SlidingWindowSplitter(Splitter):
-
-    iterator: Iterator
-
     def __init__(
         self,
         start: int,
@@ -32,7 +29,6 @@ class SlidingWindowSplitter(Splitter):
         self.step = step
         self.start = start
         self.end = end
-        self.iterator = iter(range(start, end, step))
 
     def splits(self) -> List[Split]:
         return [
@@ -48,9 +44,6 @@ class SlidingWindowSplitter(Splitter):
 
 
 class ExpandingWindowSplitter(Splitter):
-
-    iterator: Iterator
-
     def __init__(
         self,
         start: int,
@@ -62,7 +55,6 @@ class ExpandingWindowSplitter(Splitter):
         self.step = step
         self.start = start
         self.end = end
-        self.iterator = iter(range(start, end, step))
 
     def splits(self) -> List[Split]:
         return [
