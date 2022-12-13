@@ -49,4 +49,4 @@ def __train_on_window(
 
     current_model = deepcopy(model)
     current_model.fit(X_train, y_train)
-    return split.model_index, model
+    return split.model_index, current_model
