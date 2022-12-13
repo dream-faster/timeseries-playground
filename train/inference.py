@@ -48,9 +48,9 @@ def __inference_from_window(
     model_over_time: ModelOverTime,
     transformations_over_time: TransformationsOverTime,
 ) -> list[tuple[int, float, pd.Series]]:
-    current_model: Model = model_over_time.iloc[split.test_window_start]
+    current_model: Model = model_over_time.iloc[split.model_index]
     current_transformations = [
-        transformation_over_time.iloc[split.test_window_start]
+        transformation_over_time.iloc[split.model_index]
         for transformation_over_time in transformations_over_time
     ]
 

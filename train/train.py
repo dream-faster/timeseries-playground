@@ -40,7 +40,7 @@ def __train_on_window(
     y_train = y.iloc[split.train_window_start : split.train_window_end].to_numpy()
 
     current_transformations = [
-        transformation_over_time[split.train_window_start]
+        transformation_over_time[split.model_index]
         for transformation_over_time in transformations_over_time
     ]
 
@@ -49,4 +49,4 @@ def __train_on_window(
 
     current_model = deepcopy(model)
     current_model.fit(X_train, y_train)
-    return split.train_window_start, model
+    return split.model_index, model

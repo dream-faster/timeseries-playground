@@ -19,7 +19,7 @@ if __name__ == "__main__":
     transformations = [NoTransformation()]
 
     model = UnivariateStatsForecastModel(model=AutoARIMA())
-    splitter = ExpandingWindowSplitter(start=0, end=len(y), window_size=1000, step=100)
+    splitter = ExpandingWindowSplitter(start=0, end=len(y), window_size=1000, step=500)
 
     transformations_over_time = fit_transformations(X, y, splitter, transformations)
     model_over_time = walk_forward_train(
@@ -28,3 +28,4 @@ if __name__ == "__main__":
     insample_predictions, outofsample_predictions = walk_forward_inference(
         model_over_time, transformations_over_time, X, splitter
     )
+    print(insample_predictions, outofsample_predictions)

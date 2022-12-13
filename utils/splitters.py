@@ -5,6 +5,7 @@ from typing import List, Optional
 
 @dataclass
 class Split:
+    model_index: int
     train_window_start: int
     train_window_end: int
     test_window_start: int
@@ -36,12 +37,13 @@ class SlidingWindowSplitter(Splitter):
     def splits(self) -> List[Split]:
         return [
             Split(
+                model_index=index,
                 train_window_start=index - self.window_size,
                 train_window_end=index - 1,
                 test_window_start=index,
                 test_window_end=min(self.end - 1, index - 1 + self.step),
             )
-            for index in range(self.start, self.end, self.step)
+            for index in range(self.start + self.window_size, self.end, self.step)
         ]
 
 
@@ -65,10 +67,11 @@ class ExpandingWindowSplitter(Splitter):
     def splits(self) -> List[Split]:
         return [
             Split(
+                model_index=index,
                 train_window_start=self.start,
                 train_window_end=index - 1,
                 test_window_start=index,
                 test_window_end=min(self.end - 1, index - 1 + self.step),
             )
-            for index in range(self.start, self.end, self.step)
+            for index in range(self.start + self.window_size, self.end, self.step)
         ]

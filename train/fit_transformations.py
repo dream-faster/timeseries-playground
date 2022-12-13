@@ -13,7 +13,7 @@ def fit_transformations(
     transformations: List[Transformation],
 ) -> TransformationsOverTime:
     transformations_over_time = [
-        pd.Series(index=y.index).rename(t.name) for t in transformations
+        pd.Series(index=y.index, dtype="object").rename(t.name) for t in transformations
     ]
 
     # easy to parallize this with ray
@@ -44,4 +44,4 @@ def __process_transformations_window(
     for transformation in current_transformations:
         X_train = transformation.fit_transform(X_train, y_train)
 
-    return split.train_window_start, current_transformations
+    return split.model_index, current_transformations
