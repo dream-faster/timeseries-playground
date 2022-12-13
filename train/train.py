@@ -20,13 +20,8 @@ def walk_forward_train(
         for split in tqdm(splitter.splits())
     ]
 
-    models_over_time = pd.Series(index=y.index, dtype="object").rename(model.name)
-
-    # aggregate models
-    for index, current_model in models:
-        models_over_time.iloc[index] = current_model
-
-    return models_over_time
+    idx, values = zip(*models)
+    return pd.Series(values, idx).rename(model.name)
 
 
 def __train_on_window(

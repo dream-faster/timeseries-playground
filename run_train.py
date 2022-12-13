@@ -19,6 +19,7 @@ if __name__ == "__main__":
     transformations = [NoTransformation()]
 
     model = UnivariateStatsForecastModel(model=AutoARIMA())
+
     splitter = ExpandingWindowSplitter(start=0, end=len(y), window_size=1000, step=500)
 
     transformations_over_time = fit_transformations(X, y, splitter, transformations)

@@ -8,24 +8,20 @@ import pandas as pd
 
 class PCATransformation(Transformation):
 
-    pca: PCA
+    model: PCA
 
-    def __init__(self, ratio_components_to_keep: float, initial_window_size: int):
+    def __init__(self, ratio_components_to_keep: float):
         self.ratio_components_to_keep = ratio_components_to_keep
-        self.initial_window_size = initial_window_size
 
     def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> None:
-        self.pca = PCA(
-            n_components=min(
-                int(len(X.columns) * self.ratio_components_to_keep),
-                self.initial_window_size,
-            ),
+        self.model = PCA(
+            n_components=int(len(X.columns) * self.ratio_components_to_keep),
             # whiten=True,
         )
-        self.pca.fit(X, y)
+        self.model.fit(X, y)
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
-        X = pd.DataFrame(self.pca.transform(X), index=X.index)
+        X = pd.DataFrame(self.model.transform(X), index=X.index)
         X.columns = ["PCA_" + str(i) for i in range(1, len(X.columns) + 1)]
         return X
 

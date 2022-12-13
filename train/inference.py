@@ -8,7 +8,7 @@ from all_types import (
 )
 from tqdm import tqdm
 from models.base import Model
-
+from utils.flatten import single_flatten
 from utils.splitters import Splitter, Split
 
 
@@ -25,7 +25,7 @@ def walk_forward_inference(
         f"outofsample_predictions"
     )
 
-    batched_results = [
+    results = [
         __inference_from_window(
             split,
             X,
@@ -34,10 +34,11 @@ def walk_forward_inference(
         )
         for split in tqdm(splitter.splits())
     ]
-    for batch in batched_results:
-        for index, prediction, probs in batch:
-            insample_predictions.iloc[index] = prediction
-            outofsample_predictions.iloc[index] = probs
+    results = single_flatten(results)
+
+    for index, prediction_insample, prediction_outofsample in results:
+        insample_predictions.iloc[index] = prediction_insample
+        outofsample_predictions.iloc[index] = prediction_outofsample
 
     return insample_predictions, outofsample_predictions
 
@@ -48,7 +49,7 @@ def __inference_from_window(
     model_over_time: ModelOverTime,
     transformations_over_time: TransformationsOverTime,
 ) -> list[tuple[int, float, pd.Series]]:
-    current_model: Model = model_over_time.iloc[split.model_index]
+    current_model: Model = model_over_time[split.model_index]
     current_transformations = [
         transformation_over_time.iloc[split.model_index]
         for transformation_over_time in transformations_over_time

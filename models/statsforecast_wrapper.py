@@ -12,7 +12,8 @@ class UnivariateStatsForecastModel(Model):
         self.model = model
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
-        self.model.fit(y=shift(y, 1))
+        # self.model.fit(y=shift(y, 1))
+        self.model.fit(y=y)
 
     def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
         return self.model.predict_in_sample()["mean"]
