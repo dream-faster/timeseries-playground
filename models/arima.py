@@ -1,4 +1,4 @@
-from .base import Model
+from .base import Model, ModelType
 import numpy as np
 from typing import Optional, Tuple, Union
 from dataclasses import dataclass
@@ -21,6 +21,7 @@ class ArimaConfig:
 class ArimaWrapper(Model):
 
     name = "ARIMA"
+    type = ModelType.Univariate
 
     def __init__(self, config: ArimaConfig) -> None:
         self.config = config

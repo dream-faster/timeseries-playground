@@ -22,9 +22,5 @@ class SKTimeModelWrapper(Model):
         return self.model.predict(fh=fh, X)
 
     def predict(self, X: np.ndarray) -> OutSamplePredictions:
-        return self.model.predict(fh=fh, X)
+        return self.model.predict(fh=self.fh, X)
 
-
-default_naive_model = NaiveForecasterWrapper(
-    NaiveForecasterConfig(strategy=NaiveForecasterWrapper.strategy_types.last)
-)
