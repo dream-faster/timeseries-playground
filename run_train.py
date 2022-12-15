@@ -20,7 +20,7 @@ if __name__ == "__main__":
     model = NaiveForecasterWrapper(
         NaiveForecasterConfig(strategy=NaiveForecasterWrapper.strategy.last)
     )
-    model = BaselineModel(strategy=BaselineModel.strategies.expanding_mean)
+    model = BaselineModel(strategy=BaselineModel.strategies.naive)
 
     splitter = ExpandingWindowSplitter(start=0, end=len(y), window_size=1000, step=500)
 

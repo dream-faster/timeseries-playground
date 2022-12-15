@@ -37,7 +37,7 @@ class SlidingWindowSplitter(Splitter):
                 train_window_start=index - self.window_size,
                 train_window_end=index - 1,
                 test_window_start=index,
-                test_window_end=min(self.end - 1, index - 1 + self.step),
+                test_window_end=min(self.end, index + self.step),
             )
             for index in range(self.start + self.window_size, self.end, self.step)
         ]
@@ -63,7 +63,7 @@ class ExpandingWindowSplitter(Splitter):
                 train_window_start=self.start,
                 train_window_end=index - 1,
                 test_window_start=index,
-                test_window_end=min(self.end - 1, index - 1 + self.step),
+                test_window_end=min(self.end, index + self.step),
             )
             for index in range(self.start + self.window_size, self.end, self.step)
         ]

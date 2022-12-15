@@ -9,8 +9,9 @@ from tqdm import tqdm
 from models.base import Model, ModelType
 from utils.flatten import single_flatten
 from utils.splitters import Splitter, Split
-from typing import Optional
+from typing import Optional, Tuple
 from utils.pandas import shift_and_duplicate_first_value
+import numpy as np
 
 
 def walk_forward_inference(
@@ -37,12 +38,13 @@ def walk_forward_inference(
     results = single_flatten(results)
 
     idx, insample_values, outofsample_values = zip(*results)
+    idx = X.index[idx[0] : idx[-1] + 1]
 
     insample_predictions = pd.Series(insample_values, idx).rename(
-        f"insample_predictions"
+        f"{model.name}_insample_predictions"
     )
     outofsample_predictions = pd.Series(outofsample_values, idx).rename(
-        f"outofsample_predictions"
+        f"{model.name}_outofsample_predictions"
     )
     return insample_predictions, outofsample_predictions
 
@@ -52,7 +54,7 @@ def __inference_from_window(
     X: pd.DataFrame,
     model_over_time: ModelOverTime,
     transformations_over_time: Optional[TransformationsOverTime],
-) -> list[tuple[int, float, pd.Series]]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     model: Model = model_over_time[split.model_index]
     X_train = X.iloc[split.train_window_start : split.train_window_end]
 
@@ -73,13 +75,10 @@ def __inference_from_window(
 
     predictions_insample = model.predict_in_sample(X_train)
     predictions_outofsample = model.predict(X_test)
-    results = [
-        (
-            split.test_window_start + index,
-            predictions_insample[index],
-            predictions_outofsample[index],
-        )
-        for index in range(len(predictions_outofsample))
-    ]
+    idx = np.arange(
+        split.test_window_start,
+        split.test_window_start + len(predictions_outofsample),
+        1,
+    )
 
-    return results
+    return zip(idx, predictions_insample, predictions_outofsample)
