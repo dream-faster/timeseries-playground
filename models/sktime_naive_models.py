@@ -1,12 +1,11 @@
 from sktime.forecasting.naive import NaiveForecaster
-from .base import Model
+from .base import Model, ModelType
 import numpy as np
 from typing import List, Optional, Union
 from enum import Enum
 from dataclasses import dataclass
 from sktime.forecasting.base import ForecastingHorizon
 from all_types import OutSamplePredictions
-from utils.np import shift
 
 
 class StrategyTypes(Enum):
@@ -27,7 +26,8 @@ class NaiveForecasterWrapper(Model):
 
     strategy = StrategyTypes
 
-    name: str = "NaiveForecaster"
+    name = "NaiveForecaster"
+    type = ModelType.Univariate
 
     def __init__(self, config: NaiveForecasterConfig) -> None:
         self.model = NaiveForecaster(
@@ -38,7 +38,7 @@ class NaiveForecasterWrapper(Model):
         self.config = config
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
-        self.model.fit(shift(y, 1))
+        self.model.fit(X)
 
     def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
         fh = ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=False)

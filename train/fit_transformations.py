@@ -1,5 +1,5 @@
 import pandas as pd
-from all_types import TransformationsOverTime, X, y
+from all_types import TransformationsOverTime
 from tqdm import tqdm
 from transformations.base import Transformation
 from utils.splitters import Split, Splitter
@@ -7,8 +7,8 @@ from typing import List
 
 
 def fit_transformations(
-    X: X,
-    y: y,
+    X: pd.DataFrame,
+    y: pd.Series,
     splitter: Splitter,
     transformations: List[Transformation],
 ) -> TransformationsOverTime:
@@ -31,8 +31,8 @@ def fit_transformations(
 
 
 def __process_transformations_window(
-    X: X,
-    y: y,
+    X: pd.DataFrame,
+    y: pd.Series,
     transformations: list[Transformation],
     split: Split,
 ) -> tuple[int, list[Transformation]]:

@@ -5,5 +5,3 @@ ModelOverTime = pd.Series
 TransformationsOverTime = List[pd.Series]
 InSamplePredictions = pd.Series
 OutSamplePredictions = pd.Series
-y = pd.Series
-X = pd.DataFrame

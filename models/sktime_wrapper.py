@@ -1,4 +1,4 @@
-from .base import Model
+from .base import Model, ModelType
 import numpy as np
 from sktime.forecasting.base import ForecastingHorizon, BaseForecaster
 from all_types import OutSamplePredictions
@@ -6,7 +6,8 @@ from all_types import OutSamplePredictions
 
 class SKTimeModelWrapper(Model):
 
-    name: str = "SKTimeModelWrapper"
+    name = "SKTimeModelWrapper"
+    type = ModelType.Univariate
 
     def __init__(self, model: BaseForecaster, fh: ForecastingHorizon) -> None:
         self.model = model

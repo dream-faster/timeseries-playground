@@ -7,7 +7,7 @@ import pandas as pd
 class Transformation(ABC):
 
     name: str
-    
+
     @abstractmethod
     def fit(self, X: pd.DataFrame, y: Optional[pd.Series]) -> None:
         raise NotImplementedError

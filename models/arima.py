@@ -3,8 +3,6 @@ import numpy as np
 from typing import Optional, Tuple, Union
 from dataclasses import dataclass
 from statsmodels.tsa.arima.model import ARIMA
-import pandas as pd
-from all_types import X, y, InSamplePredictions, OutSamplePredictions
 
 
 @dataclass
@@ -22,7 +20,7 @@ class ArimaConfig:
 
 class ArimaWrapper(Model):
 
-    name: str = ""
+    name = "ARIMA"
 
     def __init__(self, config: ArimaConfig) -> None:
         self.config = config
@@ -35,10 +33,7 @@ class ArimaWrapper(Model):
         return self.model.predict(end=len(X) - 1)
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        if self.model:
-            return self.model.forecast(len(X))
-        else:
-            raise ValueError("Model has to be fitted first")
+        return self.model.forecast(len(X))
 
 
 default_arima_model = ArimaWrapper(ArimaConfig(order=(1, 0, 1)))

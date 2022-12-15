@@ -1,29 +1,29 @@
 import pandas as pd
 from all_types import (
-    X,
     ModelOverTime,
     TransformationsOverTime,
     InSamplePredictions,
     OutSamplePredictions,
 )
 from tqdm import tqdm
-from models.base import Model
+from models.base import Model, ModelType
 from utils.flatten import single_flatten
 from utils.splitters import Splitter, Split
+from typing import Optional
+from utils.pandas import shift_and_duplicate_first_value
 
 
 def walk_forward_inference(
     model_over_time: ModelOverTime,
-    transformations_over_time: TransformationsOverTime,
-    X: X,
+    transformations_over_time: Optional[TransformationsOverTime],
+    X: pd.DataFrame,
+    y: pd.Series,
     splitter: Splitter,
 ) -> tuple[InSamplePredictions, OutSamplePredictions]:
-    insample_predictions = pd.Series(index=X.index, dtype="object").rename(
-        f"insample_predictions"
-    )
-    outofsample_predictions = pd.Series(index=X.index, dtype="object").rename(
-        f"outofsample_predictions"
-    )
+
+    model: Model = model_over_time[model_over_time.index[0]]
+    if model.type == ModelType.Univariate:
+        X = shift_and_duplicate_first_value(y, 1)
 
     results = [
         __inference_from_window(
@@ -36,34 +36,43 @@ def walk_forward_inference(
     ]
     results = single_flatten(results)
 
-    for index, prediction_insample, prediction_outofsample in results:
-        insample_predictions.iloc[index] = prediction_insample
-        outofsample_predictions.iloc[index] = prediction_outofsample
+    idx, insample_values, outofsample_values = zip(*results)
 
+    insample_predictions = pd.Series(insample_values, idx).rename(
+        f"insample_predictions"
+    )
+    outofsample_predictions = pd.Series(outofsample_values, idx).rename(
+        f"outofsample_predictions"
+    )
     return insample_predictions, outofsample_predictions
 
 
 def __inference_from_window(
     split: Split,
-    X: X,
+    X: pd.DataFrame,
     model_over_time: ModelOverTime,
-    transformations_over_time: TransformationsOverTime,
+    transformations_over_time: Optional[TransformationsOverTime],
 ) -> list[tuple[int, float, pd.Series]]:
-    current_model: Model = model_over_time[split.model_index]
-    current_transformations = [
-        transformation_over_time.iloc[split.model_index]
-        for transformation_over_time in transformations_over_time
-    ]
+    model: Model = model_over_time[split.model_index]
+    X_train = X.iloc[split.train_window_start : split.train_window_end]
+
+    if transformations_over_time is not None:
+        current_transformations = [
+            transformation_over_time.iloc[split.model_index]
+            for transformation_over_time in transformations_over_time
+        ]
+        for transformation in current_transformations:
+            X_train = transformation.transform(X_train)
+    X_train = X_train.to_numpy()
 
     X_test = X.iloc[split.test_window_start : split.test_window_end]
-
-    for transformation in current_transformations:
-        X_test = transformation.transform(X_test)
-
+    if transformations_over_time is not None:
+        for transformation in current_transformations:
+            X_test = transformation.transform(X_test)
     X_test = X_test.to_numpy()
 
-    predictions_insample = current_model.predict_in_sample(X_test)
-    predictions_outofsample = current_model.predict(X_test)
+    predictions_insample = model.predict_in_sample(X_train)
+    predictions_outofsample = model.predict(X_test)
     results = [
         (
             split.test_window_start + index,
