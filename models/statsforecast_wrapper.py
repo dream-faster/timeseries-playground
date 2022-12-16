@@ -1,5 +1,5 @@
 import numpy as np
-from .base import Model, ModelType
+from drift.models.base import Model, ModelType
 from statsforecast.models import _TS
 
 

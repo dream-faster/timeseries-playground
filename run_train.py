@@ -1,12 +1,12 @@
 from statsforecast.models import AutoARIMA
-from models.baseline import BaselineModel
+from drift.models.baseline import BaselineModel
 from models.statsforecast_wrapper import UnivariateStatsForecastModel
 from models.sktime_naive_models import NaiveForecasterConfig, NaiveForecasterWrapper
-from transformations.no import NoTransformation
+from drift.transformations.no import NoTransformation
 from utils.market_data import get_market_data
-from utils.splitters import ExpandingWindowSplitter
-from train import walk_forward_inference, walk_forward_train, fit_transformations
-from transformations import NoTransformation
+from drift.utils.splitters import ExpandingWindowSplitter
+from drift.loop import walk_forward_inference, walk_forward_train, fit_transformations
+from drift.transformations import NoTransformation
 
 if __name__ == "__main__":
     data = get_market_data()

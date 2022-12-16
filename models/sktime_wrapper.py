@@ -1,7 +1,7 @@
-from .base import Model, ModelType
+from drift.models.base import Model, ModelType
 import numpy as np
 from sktime.forecasting.base import ForecastingHorizon, BaseForecaster
-from all_types import OutSamplePredictions
+from drift.all_types import OutSamplePredictions
 
 
 class SKTimeModelWrapper(Model):

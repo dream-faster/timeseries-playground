@@ -1,11 +1,11 @@
 from sktime.forecasting.naive import NaiveForecaster
-from .base import Model, ModelType
+from drift.models.base import Model, ModelType
 import numpy as np
 from typing import List, Optional, Union
 from enum import Enum
 from dataclasses import dataclass
 from sktime.forecasting.base import ForecastingHorizon
-from all_types import OutSamplePredictions
+from drift.all_types import OutSamplePredictions
 
 
 class StrategyTypes(Enum):

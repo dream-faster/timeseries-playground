@@ -1,5 +1,5 @@
 from __future__ import annotations
-from .base import Transformation
+from drift.transformations.base import Transformation
 from typing import Optional
 from copy import deepcopy
 from fracdiff.sklearn import FracdiffStat
