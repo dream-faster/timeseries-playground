@@ -1,12 +1,11 @@
 from sktime.forecasting.naive import NaiveForecaster
-from .base import Model
+from .base import Model, ModelType
 import numpy as np
 from typing import List, Optional, Union
 from enum import Enum
 from dataclasses import dataclass
 from sktime.forecasting.base import ForecastingHorizon
-import pandas as pd
-from all_types import X, y, InSamplePredictions, OutSamplePredictions
+from all_types import OutSamplePredictions
 
 
 class StrategyTypes(Enum):
@@ -25,8 +24,10 @@ class NaiveForecasterConfig:
 
 class NaiveForecasterWrapper(Model):
 
-    name: str = ""
-    strategy_types = StrategyTypes
+    strategy = StrategyTypes
+
+    name = "NaiveForecaster"
+    type = ModelType.Univariate
 
     def __init__(self, config: NaiveForecasterConfig) -> None:
         self.model = NaiveForecaster(
@@ -36,23 +37,18 @@ class NaiveForecasterWrapper(Model):
         )
         self.config = config
 
-    def fit(self, X: X, y: y) -> None:
+    def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         self.model.fit(X)
 
-    def predict_in_sample(self, X: X) -> InSamplePredictions:
+    def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
         fh = ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=False)
         fh = fh.to_relative(cutoff=len(X))
         return self.model.predict(fh=fh)
 
-    def predict(self, X: X) -> OutSamplePredictions:
+    def predict(self, X: np.ndarray) -> OutSamplePredictions:
         fh = (
             self.config.fh
             if self.config.fh is not None
             else ForecastingHorizon([x + 1 for x in range(len(X))], is_relative=True)
         )
         return self.model.predict(fh=fh)
-
-
-default_naive_model = NaiveForecasterWrapper(
-    NaiveForecasterConfig(strategy=NaiveForecasterWrapper.strategy_types.last)
-)

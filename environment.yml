@@ -35,5 +35,4 @@ dependencies:
   - pip
   - pip:
     - fracdiff
-    - prophet
 prefix: /opt/homebrew/Caskroom/mambaforge/base/envs/enoki

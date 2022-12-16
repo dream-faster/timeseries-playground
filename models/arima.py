@@ -1,10 +1,8 @@
-from .base import Model
+from .base import Model, ModelType
 import numpy as np
 from typing import Optional, Tuple, Union
 from dataclasses import dataclass
 from statsmodels.tsa.arima.model import ARIMA
-import pandas as pd
-from all_types import X, y, InSamplePredictions, OutSamplePredictions
 
 
 @dataclass
@@ -22,23 +20,21 @@ class ArimaConfig:
 
 class ArimaWrapper(Model):
 
-    name: str = ""
+    name = "ARIMA"
+    type = ModelType.Univariate
 
     def __init__(self, config: ArimaConfig) -> None:
         self.config = config
 
-    def fit(self, X: X, y: y) -> None:
+    def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         unfitted_model = ARIMA(X, order=self.config.order, trend=self.config.trend)
         self.model = unfitted_model.fit()
 
-    def predict_in_sample(self, X: X) -> InSamplePredictions:
+    def predict_in_sample(self, X: np.ndarray) -> np.ndarray:
         return self.model.predict(end=len(X) - 1)
 
-    def predict(self, X: X) -> OutSamplePredictions:
-        if self.model:
-            return self.model.forecast(len(X))
-        else:
-            raise ValueError("Model has to be fitted first")
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        return self.model.forecast(len(X))
 
 
 default_arima_model = ArimaWrapper(ArimaConfig(order=(1, 0, 1)))
