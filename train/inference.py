@@ -7,7 +7,6 @@ from all_types import (
 )
 from tqdm import tqdm
 from models.base import Model, ModelType
-from utils.flatten import single_flatten
 from utils.splitters import Splitter, Split
 from typing import Optional, Tuple
 from utils.pandas import shift_and_duplicate_first_value
