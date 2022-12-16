@@ -35,17 +35,19 @@ def walk_forward_inference(
         )
         for split in tqdm(splitter.splits())
     ]
-    results = single_flatten(results)
+    insample_idx, insample_values, outofsample_idx, outofsample_values = zip(*results)
 
-    idx, insample_values, outofsample_values = zip(*results)
-    idx = X.index[idx[0] : idx[-1] + 1]
+    insample_idx = insample_idx[-1]
+    insample_values = insample_values[-1]
+    outofsample_idx = np.concatenate(outofsample_idx)
+    outofsample_values = np.concatenate(outofsample_values)
 
-    insample_predictions = pd.Series(insample_values, idx).rename(
-        f"{model.name}_insample_predictions"
-    )
-    outofsample_predictions = pd.Series(outofsample_values, idx).rename(
-        f"{model.name}_outofsample_predictions"
-    )
+    insample_predictions = pd.Series(
+        insample_values, X.index[insample_idx[0] : insample_idx[-1] + 1]
+    ).rename(f"{model.name}_insample_predictions")
+    outofsample_predictions = pd.Series(
+        outofsample_values, X.index[outofsample_idx[0] : outofsample_idx[-1] + 1]
+    ).rename(f"{model.name}_outofsample_predictions")
     return insample_predictions, outofsample_predictions
 
 
@@ -54,7 +56,7 @@ def __inference_from_window(
     X: pd.DataFrame,
     model_over_time: ModelOverTime,
     transformations_over_time: Optional[TransformationsOverTime],
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     model: Model = model_over_time[split.model_index]
     X_train = X.iloc[split.train_window_start : split.train_window_end]
 
@@ -73,12 +75,20 @@ def __inference_from_window(
             X_test = transformation.transform(X_test)
     X_test = X_test.to_numpy()
 
-    predictions_insample = model.predict_in_sample(X_train)
-    predictions_outofsample = model.predict(X_test)
-    idx = np.arange(
-        split.test_window_start,
-        split.test_window_start + len(predictions_outofsample),
+    insample_predictions = model.predict_in_sample(X_train)
+    # fix insample predictions
+    insample_idx = np.arange(
+        split.train_window_start,
+        split.train_window_end,
         1,
     )
 
-    return zip(idx, predictions_insample, predictions_outofsample)
+    outofsample_predictions = model.predict(X_test)
+    # fix insample predictions
+    outofsample_idx = np.arange(
+        split.test_window_start,
+        split.test_window_end,
+        1,
+    )
+
+    return insample_idx, insample_predictions, outofsample_idx, outofsample_predictions
