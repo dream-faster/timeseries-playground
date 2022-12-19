@@ -1,4 +1,4 @@
-from .base import Model, ModelType
+from drift.models.base import Model, ModelType
 import numpy as np
 from typing import Optional, Tuple, Union
 from dataclasses import dataclass
