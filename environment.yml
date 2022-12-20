@@ -35,5 +35,6 @@ dependencies:
   - pip:
     - fracdiff
     - https://github.com/dream-faster/drift/main.zip
+    - https://github.com/dream-faster/krisi/main.zip
 
 prefix: /opt/homebrew/Caskroom/mambaforge/base/envs/enoki
