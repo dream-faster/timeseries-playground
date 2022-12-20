@@ -7,6 +7,8 @@ from utils.market_data import get_market_data
 from drift.utils.splitters import ExpandingWindowSplitter
 from drift.loop import walk_forward_inference, walk_forward_train, fit_transformations
 from drift.transformations import NoTransformation
+import yfinance as yf
+yf.pdr_override()
 
 if __name__ == "__main__":
     data = get_market_data()
