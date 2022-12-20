@@ -10,6 +10,8 @@ from drift.transformations import NoTransformation
 import yfinance as yf
 yf.pdr_override()
 
+
+
 if __name__ == "__main__":
     data = get_market_data()
 
