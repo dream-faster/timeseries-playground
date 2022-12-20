@@ -8,8 +8,10 @@ from drift.utils.splitters import ExpandingWindowSplitter
 from drift.loop import walk_forward_inference, walk_forward_train, fit_transformations
 from drift.transformations import NoTransformation
 import yfinance as yf
+
 yf.pdr_override()
 
+from krisi.evaluate import evaluate, SampleTypes
 
 
 if __name__ == "__main__":
@@ -34,4 +36,10 @@ if __name__ == "__main__":
         model_over_time, None, X, y, splitter
     )
     print(insample_predictions, outofsample_predictions)
-    
+
+    insample_scorecard = evaluate(
+        "BaselineModel", "VIX", SampleTypes.insample, y, insample_predictions
+    )
+    outsample_scorecard = evaluate(
+        "BaselineModel", "VIX", SampleTypes.outsample, y, outofsample_predictions
+    )
