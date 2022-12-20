@@ -8,6 +8,8 @@ from drift.utils.splitters import ExpandingWindowSplitter
 from drift.loop import walk_forward_inference, walk_forward_train, fit_transformations
 from drift.transformations import NoTransformation
 
+
+
 if __name__ == "__main__":
     data = get_market_data()
 
