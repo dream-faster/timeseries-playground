@@ -38,8 +38,16 @@ if __name__ == "__main__":
     print(insample_predictions, outofsample_predictions)
 
     insample_scorecard = evaluate(
-        "BaselineModel", "VIX", SampleTypes.insample, y, insample_predictions
-    )
-    outsample_scorecard = evaluate(
-        "BaselineModel", "VIX", SampleTypes.outsample, y, outofsample_predictions
-    )
+        "BaselineModel",
+        "VIX",
+        SampleTypes.insample,
+        y[insample_predictions.index],
+        insample_predictions,
+    ).print_summary()
+    # outsample_scorecard = evaluate(
+    #     "BaselineModel",
+    #     "VIX",
+    #     SampleTypes.outsample,
+    #     y[outofsample_predictions.index],
+    #     outofsample_predictions,
+    # ).print_summary()
