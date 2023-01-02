@@ -1,13 +1,5 @@
-#%%
-
-import pandas_datareader.data as web
 import pandas as pd
-import datetime
-import seaborn as sns
 import yfinance as yf
-
-yf.pdr_override()
-sns.set(rc={"figure.figsize": (11.7, 8.27)})
 
 
 def get_market_data() -> pd.DataFrame:
@@ -68,8 +60,4 @@ def get_market_data() -> pd.DataFrame:
         .fillna(method="ffill")
         .dropna()
     )
-    print(f" {df.shape[0]} {df.shape[1]}")
     return df
-
-
-# %%
