@@ -1,7 +1,5 @@
 import pandas as pd
 from krisi.evaluate import evaluate as krisi_evaluate
-from krisi.evaluate import SampleTypes
-from krisi.evaluate.type import CalculationTypes
 from sktime.forecasting.model_selection import ExpandingWindowSplitter
 from sktime.forecasting.ets import AutoETS
 from sktime.forecasting.statsforecast import StatsForecastAutoARIMA
@@ -21,29 +19,37 @@ y = data["P"].values
 models = [
     # AutoETS(auto=True, sp=24, n_jobs=-1, random_state=42),
     # ThetaForecaster(sp=24),
-    StatsForecastAutoARIMA(1, 1),
+    # StatsForecastAutoARIMA(1, 1),
     # NaiveForecaster(strategy="last"),
     # NaiveForecaster(strategy="mean", window_length=400),
     # NaiveForecaster(strategy="drift", window_length=20),
-    # SARIMAX(),
+    SARIMAX(),
     # Croston(),
     # ARIMA(order=(1, 0, 0), suppress_warnings=True),
 ]
 
-cv = ExpandingWindowSplitter(fh=400, initial_window=400, step_length=1)
+cv = ExpandingWindowSplitter(fh=1, initial_window=400, step_length=1)
 
 
 results = [
-    evaluate(forecaster=model, y=y, cv=cv, strategy="refit", return_data=True)
+    evaluate(
+        forecaster=model,
+        y=y,
+        cv=cv,
+        strategy="update",
+        return_data=True,
+        error_score="raise",
+    )
     for model in models
 ]
 
 for index, result in enumerate(results):
+
+    def squeeze_weird_sktime_return_format(series: pd.Series) -> pd.Series:
+        idx, items = zip(*[(row.index[0], row[0].iloc[0]) for row in series])
+        return pd.Series(items, index=idx)
+
     krisi_evaluate(
-        models[index].__class__.__name__,
-        "energy",
-        sample_type=SampleTypes.outsample,
-        calculation_type=CalculationTypes.single,
-        y=result["y_test"],
-        predictions=result["y_pred"],
+        y=squeeze_weird_sktime_return_format(result["y_test"]),
+        predictions=squeeze_weird_sktime_return_format(result["y_pred"]),
     ).print_summary()

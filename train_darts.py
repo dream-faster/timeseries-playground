@@ -23,17 +23,17 @@ models = [
     # NaiveSeasonal(K=96),
     # ExponentialSmoothing(),
     # TBATS(),
-    ARIMA(p=1, d=1, q=0),
+    # ARIMA(p=1, d=1, q=0),
     # AutoARIMA(),
     # Theta(season_mode=SeasonalityMode.NONE),
 ]
 for model in models:
     print(model)
     model.fit(series)
-    history = model.backtest(
-        series, start=400, forecast_horizon=1, stride=400, verbose=True
-    )
-    # history = model.historical_forecasts(
-    #     series, start=1000, forecast_horizon=1, verbose=True
+    # history = model.backtest(
+    #     series, start=400, forecast_horizon=1, stride=400, verbose=True
     # )
+    history = model.historical_forecasts(
+        series, start=1000, forecast_horizon=1, verbose=True
+    )
     print(f"{model} RMSE = {rmse(history, series)}%")
