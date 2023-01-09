@@ -17,23 +17,23 @@ data = get_energy_data()
 # Create a TimeSeries, specifying the time and value columns
 series = TimeSeries.from_dataframe(data[["load"]].dropna(), value_cols=["load"])
 models = [
-    NaiveDrift(),
-    NaiveMean(),
+    # NaiveDrift(),
+    # NaiveMean(),
     # NaiveSeasonal(K=1),
     # NaiveSeasonal(K=96),
     # ExponentialSmoothing(),
     # TBATS(),
     ARIMA(p=1, d=1, q=0),
-    # AutoARIMA(),
+    AutoARIMA(),
     # Theta(season_mode=SeasonalityMode.NONE),
 ]
 for model in models:
     print(model)
     model.fit(series)
-    history = model.backtest(
-        series, start=400, forecast_horizon=1, stride=400, verbose=True
-    )
-    # history = model.historical_forecasts(
-    #     series, start=1000, forecast_horizon=1, verbose=True
+    # history = model.backtest(
+    #     series, start=400, forecast_horizon=1, stride=400, verbose=True
     # )
+    history = model.historical_forecasts(
+        series, start=1000, forecast_horizon=10, verbose=True
+    )
     print(f"{model} RMSE = {rmse(history, series)}%")
